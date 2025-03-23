@@ -1,0 +1,47 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# React Rules
+
+## 1. Component Basics
+
+- **Use Functional Components with arrow functions**
+- **Name components with PascalCase starting with a capital letter**
+- **Break down into smaller components with single responsibilities**
+
+## 2. State Management
+
+- **Keep state minimal and organized**
+- **Use hooks correctly (useState, useEffect)**
+- **Never mutate state directly (use immutable patterns)**
+
+## 3. Performance
+
+- **Always use unique key props when rendering lists (avoid indices)**
+- **Apply React.memo and useMemo for complex components and calculations**
+- **Lazy load heavy components when necessary**
+
+## 4. Data Handling
+
+- **Handle loading and error states when fetching data**
+- **Create custom hooks for reusable logic**
+- **Show users when data is loading**
+
+## 5. UX/UI
+
+- **Display clear error messages**
+- **Validate input data**
+- **Ensure responsive UI across different devices**
+
+## 6. Basic Security
+
+- **Sanitize user input**
+- **Handle sensitive data carefully**
+
+## 7. Code Organization
+
+- **Use consistent folder structure**
+- **Name variables and functions clearly with camelCase**
+- **Comment complex logic**
