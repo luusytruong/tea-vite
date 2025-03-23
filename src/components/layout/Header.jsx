@@ -13,7 +13,8 @@ import {
   Info,
   PhoneCall,
 } from "lucide-react";
-import logo from "~/assets/logo.webp";
+import logo from "~/assets/logo.png";
+import name from "~/assets/name.png";
 
 /**
  * Header component chứa navigation
@@ -75,6 +76,7 @@ const Header = memo(() => {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img src={logo} alt="Tea Shop Logo" className="h-12 w-auto" />
+            <img src={name} alt="Tea Shop Name" className="ml-2 h-6 w-auto" />
           </Link>
 
           {/* Desktop Navigation */}

@@ -22,7 +22,7 @@ const ProcessStep = memo(({ step, isActive, onClick }) => {
           : "border-gray-100 hover:border-green-200 hover:bg-gray-50"
       }`}>
         {/* Step Number */}
-        <div className={`absolute -left-6 sm:-left-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold transition-all duration-300 ${
+        <div className={`absolute -left-6 sm:-left-6 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xl sm:text-2xl font-bold transition-all duration-300 ${
           isActive 
             ? "bg-green-700 text-white" 
             : "bg-gray-100 text-gray-400 group-hover:bg-green-100 group-hover:text-green-600"
