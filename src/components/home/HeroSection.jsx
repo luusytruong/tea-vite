@@ -1,7 +1,17 @@
 import { memo, useState, useEffect, useRef } from "react";
-import { Leaf, Award, Heart, Trees, Mountain, Star, Coffee, ArrowRight } from "lucide-react";
+import {
+  Leaf,
+  Award,
+  Heart,
+  Trees,
+  Mountain,
+  Star,
+  Coffee,
+  ArrowRight,
+} from "lucide-react";
 import { heroConfig } from "~/data/hero";
 import { motion, AnimatePresence } from "framer-motion";
+import { ROUTES } from "~/routes";
 
 const FeatureItem = memo(({ icon: Icon, text, description, index }) => (
   <motion.div
@@ -10,7 +20,7 @@ const FeatureItem = memo(({ icon: Icon, text, description, index }) => (
     transition={{ duration: 0.6, delay: index * 0.15 }}
     className="group flex items-start gap-3 p-4 rounded-lg bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-300"
   >
-    <motion.div 
+    <motion.div
       whileHover={{ scale: 1.1, rotate: 360 }}
       transition={{ duration: 0.6 }}
       className="p-2 rounded-full bg-green-700/20 group-hover:bg-green-700/30 transition-colors"
@@ -18,7 +28,7 @@ const FeatureItem = memo(({ icon: Icon, text, description, index }) => (
       <Icon className="w-5 h-5 text-green-300" />
     </motion.div>
     <div>
-      <motion.h3 
+      <motion.h3
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: index * 0.15 + 0.3 }}
@@ -26,7 +36,7 @@ const FeatureItem = memo(({ icon: Icon, text, description, index }) => (
       >
         {text}
       </motion.h3>
-      <motion.p 
+      <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3, delay: index * 0.15 + 0.4 }}
@@ -44,28 +54,28 @@ const StatItem = memo(({ number, label, index }) => (
   <motion.div
     initial={{ opacity: 0, y: 50 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ 
+    transition={{
       duration: 0.8,
       delay: 0.8 + index * 0.2,
       type: "spring",
-      stiffness: 100
+      stiffness: 100,
     }}
     whileHover={{ scale: 1.05 }}
     className="text-center"
   >
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ 
+      transition={{
         duration: 0.5,
         delay: 1 + index * 0.2,
-        type: "spring"
+        type: "spring",
       }}
-      className="text-3xl font-bold text-green-300 mb-1"
+      className="text-3xl font-medium text-green-300 mb-1"
     >
       {number}
     </motion.div>
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, delay: 1.2 + index * 0.2 }}
@@ -84,13 +94,13 @@ const HeroSection = memo(() => {
   const [touchEnd, setTouchEnd] = useState(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const slideInterval = useRef(null);
-  const { backgrounds, stats, style, cta } = heroConfig;
+  const { items, stats } = heroConfig;
 
   // Xử lý chuyển slide tự động - đã loại bỏ điều kiện isHovered
   useEffect(() => {
     if (!isTransitioning) {
       slideInterval.current = setInterval(() => {
-        handleSlideChange((currentSlide + 1) % backgrounds.length);
+        handleSlideChange((currentSlide + 1) % items.length);
       }, 5000);
     }
 
@@ -99,7 +109,7 @@ const HeroSection = memo(() => {
         clearInterval(slideInterval.current);
       }
     };
-  }, [isTransitioning, currentSlide, backgrounds.length]);
+  }, [isTransitioning, currentSlide, items.length]);
 
   // Xử lý touch events
   const handleTouchStart = (e) => {
@@ -121,9 +131,11 @@ const HeroSection = memo(() => {
     const isRightSwipe = distance < -50;
 
     if (isLeftSwipe) {
-      handleSlideChange((currentSlide + 1) % backgrounds.length);
+      handleSlideChange((currentSlide + 1) % items.length);
     } else if (isRightSwipe) {
-      handleSlideChange((currentSlide - 1 + backgrounds.length) % backgrounds.length);
+      handleSlideChange(
+        (currentSlide - 1 + items.length) % items.length
+      );
     }
 
     setTouchStart(null);
@@ -133,7 +145,7 @@ const HeroSection = memo(() => {
   // Xử lý chuyển slide
   const handleSlideChange = (newIndex) => {
     if (isTransitioning) return;
-    
+
     setIsTransitioning(true);
     setCurrentSlide(newIndex);
 
@@ -149,14 +161,22 @@ const HeroSection = memo(() => {
 
   const getIcon = (iconName) => {
     switch (iconName) {
-      case "Leaf": return Leaf;
-      case "Award": return Award;
-      case "Heart": return Heart;
-      case "Tree": return Trees;
-      case "Mountain": return Mountain;
-      case "Star": return Star;
-      case "Coffee": return Coffee;
-      default: return Leaf;
+      case "Leaf":
+        return Leaf;
+      case "Award":
+        return Award;
+      case "Heart":
+        return Heart;
+      case "Tree":
+        return Trees;
+      case "Mountain":
+        return Mountain;
+      case "Star":
+        return Star;
+      case "Coffee":
+        return Coffee;
+      default:
+        return Leaf;
     }
   };
 
@@ -165,166 +185,160 @@ const HeroSection = memo(() => {
     // Slide đầu tiên không có hiệu ứng trượt, chỉ có fade in
     if (index === 0) {
       return {
-        opacity: 0
+        opacity: 0,
       };
     }
     // Các slide khác vẫn giữ hiệu ứng trượt
     return {
       x: direction > 0 ? 1000 : -1000,
-      opacity: 0
+      opacity: 0,
     };
   };
 
   return (
-    <motion.section 
+    <motion.section
       initial="initial"
       animate="animate"
-      className="relative h-[calc(100vh-116px)] overflow-hidden"
+      className="relative md:min-h-[calc(100vh-116px)] overflow-hidden"
     >
       {/* Background Slider */}
-      <div 
-        className="relative h-full"
+      <div
+        className="relative min-h-screen md:min-h-[calc(100vh-116px)] md:h-full"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         <AnimatePresence initial={true} custom={currentSlide}>
-          {backgrounds.map((bg, index) => (
-            index === currentSlide && (
-              <motion.div
-                key={bg.id}
-                custom={currentSlide}
-                initial={getSlideInitialState(index, 1)}
-                animate={{
-                  zIndex: 1,
-                  x: 0,
-                  opacity: 1
-                }}
-                exit={{
-                  zIndex: 0,
-                  x: currentSlide > index ? 1000 : -1000,
-                  opacity: 0
-                }}
-                transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.5 }
-                }}
-                className="absolute inset-0"
-              >
-                <div 
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-                  style={{ backgroundImage: `url(${bg.image})` }}
+          {items.map(
+            (bg, index) =>
+              index === currentSlide && (
+                <motion.div
+                  key={bg.id}
+                  custom={currentSlide}
+                  initial={getSlideInitialState(index, 1)}
+                  animate={{
+                    zIndex: 1,
+                    x: 0,
+                    opacity: 1,
+                  }}
+                  exit={{
+                    zIndex: 0,
+                    x: currentSlide > index ? 1000 : -1000,
+                    opacity: 0,
+                  }}
+                  transition={{
+                    x: { type: "spring", stiffness: 300, damping: 30 },
+                    opacity: { duration: 0.5 },
+                  }}
+                  className="absolute inset-0"
                 >
-                  <div 
-                    className="absolute inset-0"
-                    style={{ backgroundColor: style.overlay }}
-                  />
-                  <div 
-                    className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: `url(${style.pattern})` }}
-                  />
-                </div>
+                  <div
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${bg.image})` }}
+                  >
+                    <div className="absolute inset-0 bg-black/40" />
+                  </div>
 
-                {/* Content */}
-                <div className="relative h-full container mx-auto px-4 flex items-center">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
-                    {/* Left Column - Main Content */}
-                    <div className="text-white">
-                      <div className="flex flex-wrap gap-4 mb-6">
-                        {bg.features.map((feature, idx) => {
-                          const Icon = getIcon(feature.icon);
-                          return (
-                            <FeatureItem
-                              key={idx}
-                              icon={Icon}
-                              text={feature.text}
-                              description={feature.description}
-                              index={idx}
-                            />
-                          );
-                        })}
+                  {/* Content */}
+                  <div className="relative h-full container mx-auto px-4 flex items-center">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full">
+                      {/* Left Column - Main Content */}
+                      <div className="text-white">
+                        <div className="flex flex-wrap gap-4 mb-6">
+                          {bg.features.map((feature, idx) => {
+                            const Icon = getIcon(feature.icon);
+                            return (
+                              <FeatureItem
+                                key={idx}
+                                icon={Icon}
+                                text={feature.text}
+                                description={feature.description}
+                                index={idx}
+                              />
+                            );
+                          })}
+                        </div>
+
+                        <motion.h1
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            duration: 0.8,
+                            delay: 0.5,
+                            type: "spring",
+                            stiffness: 100,
+                          }}
+                          className="text-5xl font-medium mb-6 leading-tight font-serif"
+                        >
+                          {bg.title}
+                        </motion.h1>
+                        <motion.p
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            duration: 0.8,
+                            delay: 0.7,
+                            type: "spring",
+                            stiffness: 100,
+                          }}
+                          className="text-xl mb-8 text-green-100 font-serif"
+                        >
+                          {bg.description}
+                        </motion.p>
+
+                        <motion.a
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            duration: 0.8,
+                            delay: 0.9,
+                            type: "spring",
+                            stiffness: 100,
+                          }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          href={ROUTES.PRODUCTS}
+                          className="group inline-flex items-center gap-2 bg-white text-green-900 px-8 py-3 rounded-full font-medium hover:bg-green-100 transition-all duration-300"
+                        >
+                          Khám phá ngay
+                          <motion.span
+                            animate={{ x: [0, 5, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.5 }}
+                          >
+                            <ArrowRight className="w-5 h-5" />
+                          </motion.span>
+                        </motion.a>
                       </div>
 
-                      <motion.h1 
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ 
-                          duration: 0.8,
-                          delay: 0.5,
-                          type: "spring",
-                          stiffness: 100
-                        }}
-                        className="text-5xl font-bold mb-6 leading-tight font-serif"
-                      >
-                        {bg.title}
-                      </motion.h1>
-                      <motion.p 
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ 
-                          duration: 0.8,
-                          delay: 0.7,
-                          type: "spring",
-                          stiffness: 100
-                        }}
-                        className="text-xl mb-8 text-green-100 font-serif"
-                      >
-                        {bg.description}
-                      </motion.p>
-
-                      <motion.a
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ 
-                          duration: 0.8,
-                          delay: 0.9,
-                          type: "spring",
-                          stiffness: 100
-                        }}
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        href={cta.link}
-                        className="group inline-flex items-center gap-2 bg-white text-green-900 px-8 py-3 rounded-full font-semibold hover:bg-green-100 transition-all duration-300"
-                      >
-                        {cta.text}
-                        <motion.span
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ repeat: Infinity, duration: 1.5 }}
+                      {/* Right Column - Stats */}
+                      <div className="hidden lg:flex items-center justify-center">
+                        <motion.div
+                          initial={{ opacity: 0, x: 50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{
+                            duration: 0.8,
+                            delay: 0.6,
+                            type: "spring",
+                            stiffness: 100,
+                          }}
+                          className="grid grid-cols-3 gap-8 p-8 rounded-2xl bg-white/5 backdrop-blur-sm"
                         >
-                          <ArrowRight className="w-5 h-5" />
-                        </motion.span>
-                      </motion.a>
-                    </div>
-
-                    {/* Right Column - Stats */}
-                    <div className="hidden lg:flex items-center justify-center">
-                      <motion.div 
-                        initial={{ opacity: 0, x: 50 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ 
-                          duration: 0.8,
-                          delay: 0.6,
-                          type: "spring",
-                          stiffness: 100
-                        }}
-                        className="grid grid-cols-3 gap-8 p-8 rounded-2xl bg-white/5 backdrop-blur-sm"
-                      >
-                        {stats.map((stat, index) => (
-                          <StatItem key={index} {...stat} index={index} />
-                        ))}
-                      </motion.div>
+                          {stats.map((stat, index) => (
+                            <StatItem key={index} {...stat} index={index} />
+                          ))}
+                        </motion.div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            )
-          ))}
+                </motion.div>
+              )
+          )}
         </AnimatePresence>
       </div>
 
       {/* Dots Navigation - đã cải thiện giao diện */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3 z-10">
-        {backgrounds.map((_, index) => (
+        {items.map((_, index) => (
           <motion.button
             key={index}
             onClick={() => goToSlide(index)}
@@ -339,36 +353,6 @@ const HeroSection = memo(() => {
           />
         ))}
       </div>
-
-      {/* Decorative Elements */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{
-          opacity: [0.1, 0.2, 0.1],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-        className="absolute bottom-0 right-0 w-64 h-64 bg-green-700/10 rounded-full blur-3xl"
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{
-          opacity: [0.1, 0.2, 0.1],
-          scale: [1, 1.2, 1]
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 2
-        }}
-        className="absolute top-0 left-0 w-48 h-48 bg-green-400/10 rounded-full blur-3xl"
-      />
     </motion.section>
   );
 });

@@ -1,14 +1,23 @@
 import { memo, useRef } from "react";
-import { Mail, Phone, MapPin, Facebook, Instagram, Smartphone, Leaf, Heart, ExternalLink } from "lucide-react";
 import { motion, useInView } from "framer-motion";
+import { company } from "~/data/company";
+import { usePageViews } from "~/hooks/usePageViews";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Facebook,
+  Instagram,
+  Smartphone,
+  Leaf,
+  Heart,
+  Eye,
+} from "lucide-react";
 
-/**
- * Footer component chứa thông tin liên hệ và social links
- * @returns {JSX.Element} Footer component
- */
 const Footer = memo(() => {
   const footerRef = useRef(null);
   const isInView = useInView(footerRef, { once: false, amount: 0.2 });
+  const { views } = usePageViews();
 
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
@@ -17,9 +26,9 @@ const Footer = memo(() => {
       y: 0,
       transition: {
         duration: 0.5,
-        staggerChildren: 0.1
-      }
-    }
+        staggerChildren: 0.1,
+      },
+    },
   };
 
   const itemVariants = {
@@ -27,8 +36,8 @@ const Footer = memo(() => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5 }
-    }
+      transition: { duration: 0.5 },
+    },
   };
 
   const socialVariants = {
@@ -36,22 +45,22 @@ const Footer = memo(() => {
     visible: {
       scale: 1,
       opacity: 1,
-      transition: { type: "spring", stiffness: 200, damping: 10 }
+      transition: { type: "spring", stiffness: 200, damping: 10 },
     },
-    hover: { scale: 1.1, rotate: 5 }
+    hover: { scale: 1.1, rotate: 5 },
   };
 
   return (
-    <motion.footer 
+    <motion.footer
       ref={footerRef}
-      className="bg-green-800 text-white py-8 overflow-hidden" 
+      className="bg-green-800 text-white py-8 overflow-hidden z-10"
       role="contentinfo"
       initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       variants={containerVariants}
     >
       <div className="container mx-auto px-4">
-        <motion.div 
+        <motion.div
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
           variants={containerVariants}
         >
@@ -62,84 +71,92 @@ const Footer = memo(() => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="flex items-center gap-2 mb-4"
             >
-              <Leaf className="w-6 h-6 text-green-300" />
-              <h3 className="text-xl font-bold">Trà Thái Nguyên</h3>
+              <Leaf className="w-6 h-6 text-green-50" />
+              <h3 className="text-xl font-medium">{company.name}</h3>
             </motion.div>
-            <motion.p 
-              className="text-green-100"
-              variants={itemVariants}
-            >
-              Chuyên cung cấp các loại trà thái nguyên chất lượng cao, được chọn lọc kỹ lưỡng từ những vùng trà nổi tiếng.
+            <motion.p className="text-green-100" variants={itemVariants}>
+              {company.description}
             </motion.p>
-            <motion.div 
+            <motion.div
+              className="mt-4 flex items-center gap-2 text-green-100"
+              variants={itemVariants}
+              whileHover={{ scale: 1.05 }}
+            >
+              <Eye className="w-4 h-4 text-green-50" />
+              <span>{views.toLocaleString()} lượt xem hôm nay</span>
+            </motion.div>
+            <motion.div
               className="mt-4 flex items-center"
               variants={itemVariants}
               whileHover={{ scale: 1.05 }}
             >
               <Heart className="w-5 h-5 text-red-400 mr-2" />
-              <span className="text-green-100">Cảm ơn quý khách đã tin tưởng!</span>
+              <span className="text-green-100">
+                Cảm ơn quý khách đã tin tưởng!
+              </span>
             </motion.div>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <motion.h3 
-              className="text-xl font-bold mb-4 flex items-center gap-2"
+            <motion.h3
+              className="text-xl font-medium mb-4 flex items-center gap-2"
               variants={itemVariants}
             >
-              <Phone className="w-5 h-5 text-green-300" /> 
               Liên hệ
             </motion.h3>
-            <motion.address 
+            <motion.address
               className="text-green-100 not-italic space-y-3"
               variants={containerVariants}
             >
-              <motion.p 
+              <motion.p
                 className="flex items-center gap-2"
                 variants={itemVariants}
                 whileHover={{ x: 5 }}
               >
-                <Mail className="w-4 h-4 text-green-300" />
+                <Mail className="w-4 h-4 text-green-50" />
                 <span>Email: </span>
-                <a href="mailto:info@trathainguyen.com" className="hover:text-white transition-colors underline">
-                  info@trathainguyen.com
+                <a
+                  href={`mailto:${company.email}`}
+                  className="hover:text-white transition-colors underline"
+                >
+                  {company.email}
                 </a>
               </motion.p>
-              <motion.p 
+              <motion.p
                 className="flex items-center gap-2"
                 variants={itemVariants}
                 whileHover={{ x: 5 }}
               >
-                <Smartphone className="w-4 h-4 text-green-300" />
+                <Smartphone className="w-4 h-4 text-green-50" />
                 <span>Điện thoại: </span>
-                <a href="tel:0123456789" className="hover:text-white transition-colors underline">
-                  0123.456.789
+                <a
+                  href={`tel:${company.phone}`}
+                  className="hover:text-white transition-colors underline"
+                >
+                  {company.phone}
                 </a>
               </motion.p>
-              <motion.p 
+              <motion.p
                 className="flex items-center gap-2"
                 variants={itemVariants}
                 whileHover={{ x: 5 }}
               >
-                <MapPin className="w-4 h-4 text-green-300" />
-                <span>Địa chỉ: Thái Nguyên, Việt Nam</span>
+                <MapPin className="w-4 h-4 text-green-50" />
+                <span>{company.address}</span>
               </motion.p>
             </motion.address>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <motion.h3 
-              className="text-xl font-bold mb-4 flex items-center gap-2"
+            <motion.h3
+              className="text-xl font-medium mb-4 flex items-center gap-2"
               variants={itemVariants}
             >
-              <ExternalLink className="w-5 h-5 text-green-300" />
               Theo dõi chúng tôi
             </motion.h3>
-            <motion.div 
-              className="flex space-x-4"
-              variants={containerVariants}
-            >
-              <motion.a 
-                href="#" 
+            <motion.div className="flex space-x-4" variants={containerVariants}>
+              <motion.a
+                href="#"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 text-white hover:bg-blue-600 transition-all"
                 aria-label="Facebook"
                 target="_blank"
@@ -149,8 +166,8 @@ const Footer = memo(() => {
               >
                 <Facebook className="w-5 h-5" />
               </motion.a>
-              <motion.a 
-                href="#" 
+              <motion.a
+                href="#"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 text-white hover:bg-pink-600 transition-all"
                 aria-label="Instagram"
                 target="_blank"
@@ -160,8 +177,8 @@ const Footer = memo(() => {
               >
                 <Instagram className="w-5 h-5" />
               </motion.a>
-              <motion.a 
-                href="#" 
+              <motion.a
+                href="#"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 text-white hover:bg-blue-500 transition-all"
                 aria-label="Zalo"
                 target="_blank"
@@ -169,25 +186,25 @@ const Footer = memo(() => {
                 variants={socialVariants}
                 whileHover="hover"
               >
-                <span className="font-bold">Z</span>
+                <span className="font-medium">Z</span>
               </motion.a>
             </motion.div>
           </motion.div>
         </motion.div>
 
-        <motion.div 
+        <motion.div
           className="mt-8 pt-8 border-t border-green-700 text-center text-green-100"
           variants={itemVariants}
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
-          <motion.p 
+          <motion.p
             whileHover={{ scale: 1.02 }}
             className="flex items-center justify-center gap-2"
           >
-            <Leaf className="w-4 h-4 text-green-300" />
-            &copy; {new Date().getFullYear()} Trà Thái Nguyên. All rights reserved.
+            &copy; {new Date().getFullYear()} {company.name}. All rights
+            reserved.
           </motion.p>
         </motion.div>
       </div>
@@ -197,4 +214,4 @@ const Footer = memo(() => {
 
 Footer.displayName = "Footer";
 
-export default Footer; 
+export default Footer;

@@ -14,7 +14,7 @@ const About = () => {
           initial={{ y: -50 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-5xl font-bold text-center text-green-800 mb-4"
+          className="text-5xl font-medium text-center text-green-800 mb-4"
         >
           Hành Trình Của Chúng Tôi
         </motion.h1>
@@ -31,8 +31,8 @@ const About = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20">
           {[
             { icon: Coffee, number: "10+", text: "Năm Kinh Nghiệm" },
-            { icon: Leaf, number: "50+", text: "Loại Trà Độc Đáo" },
-            { icon: Users, number: "10000+", text: "Khách Hàng Tin Tưởng" },
+            { icon: Leaf, number: "20+", text: "Loại Trà Độc Đáo" },
+            { icon: Users, number: "100+", text: "Khách Hàng Tin Tưởng" },
             { icon: Award, number: "15+", text: "Giải Thưởng" }
           ].map((stat, index) => (
             <motion.div
@@ -43,7 +43,7 @@ const About = () => {
               className="text-center p-6 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all"
             >
               <stat.icon className="w-12 h-12 mx-auto mb-4 text-green-700" />
-              <h3 className="text-3xl font-bold text-green-800">{stat.number}</h3>
+              <h3 className="text-3xl font-medium text-green-800">{stat.number}</h3>
               <p className="text-gray-600">{stat.text}</p>
             </motion.div>
           ))}
@@ -58,7 +58,7 @@ const About = () => {
             className="space-y-6"
           >
             <div className="bg-white p-8 rounded-2xl shadow-lg">
-              <h2 className="text-2xl font-bold text-green-800 mb-4">Câu Chuyện Của Chúng Tôi</h2>
+              <h2 className="text-2xl font-medium text-green-800 mb-4">Câu Chuyện Của Chúng Tôi</h2>
               <p className="text-gray-600 leading-relaxed">
                 Từ những búp trà đầu tiên tại Thái Nguyên, chúng tôi đã dành trọn tâm huyết để tạo nên 
                 những sản phẩm trà tinh túy nhất. Mỗi tách trà không chỉ là thức uống, mà còn là câu 
@@ -70,7 +70,7 @@ const About = () => {
               whileHover={{ scale: 1.02 }}
               className="bg-green-50 p-8 rounded-2xl shadow-lg"
             >
-              <h2 className="text-2xl font-bold text-green-800 mb-4">Giá Trị Cốt Lõi</h2>
+              <h2 className="text-2xl font-medium text-green-800 mb-4">Giá Trị Cốt Lõi</h2>
               <ul className="space-y-4">
                 {[
                   "Chất lượng không compromised",

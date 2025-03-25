@@ -3,10 +3,6 @@ import { memo } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 
-/**
- * MainLayout component - Layout chính của ứng dụng
- * @returns {JSX.Element} MainLayout component
- */
 const MainLayout = memo(() => {
   return (
     <div className="min-h-screen flex flex-col">
@@ -21,4 +17,4 @@ const MainLayout = memo(() => {
 
 MainLayout.displayName = "MainLayout";
 
-export default MainLayout; 
+export default MainLayout;

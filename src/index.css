@@ -8,9 +8,28 @@
   font-display: swap;
 }
 
-*{
+@font-face {
+  font-family: 'Inter';
+  src: url('/src/assets/fonts/Inter.ttf') format('ttf');
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
   font-family: 'SVN-Poppins', sans-serif;
 }
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
+@media screen and (max-width: 768px) {
+  * {
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  }
+}
+
 /* 
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
