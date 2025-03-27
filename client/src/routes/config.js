@@ -1,0 +1,18 @@
+export const ROUTES = {
+  ROOT: "/",
+  PRODUCTS: "/san-pham",
+  ABOUT: "/ve-chung-toi",
+  BLOG: "/chia-se",
+  CART: "/gio-hang",
+  CHECKOUT: "/thanh-toan",
+  ORDER_SUCCESS: "/thanh-toan-thanh-cong",
+  ACCOUNT: "/tai-khoan",
+  LOGIN: "/dang-nhap",
+  REGISTER: "/dang-ky",
+  DASHBOARD: "/dashboard",
+  DASHBOARD_ORDERS: "/dashboard/orders",
+  DASHBOARD_PRODUCTS: "/dashboard/products",
+  DASHBOARD_CUSTOMERS: "/dashboard/customers",
+  DASHBOARD_BLOG: "/dashboard/blog",
+  DASHBOARD_SETTINGS: "/dashboard/settings",
+};
