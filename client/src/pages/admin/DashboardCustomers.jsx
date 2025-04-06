@@ -26,7 +26,7 @@ const DashboardCustomers = memo(() => {
       orders: 3,
       totalSpent: 1800000,
       lastOrder: "2024-03-15",
-      avatar: "/images/avatars/avatar-2.jpg"
+      avatar: "/images/avatars/avatar-2.webp"
     },
     // Thêm mock data khác
   ]);

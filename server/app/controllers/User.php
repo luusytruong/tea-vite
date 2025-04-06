@@ -17,15 +17,15 @@ class User extends Controller
             'phone' => $_POST['phone'],
             'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
         ];
-        $id = $this->userModel->registerUser($data);
-        if ($id) {
-            $_SESSION['id'] = $id;
+        $user_id = $this->userModel->registerUser($data);
+        if ($user_id) {
+            $_SESSION['user_id'] = $user_id;
             $_SESSION['phone'] = $_POST['phone'];
             handleMessage([
                 'status' => 'success',
                 'title' => 'Thông báo',
                 'content' => 'Đăng ký thành công',
-                'user' => (removeFields([...$data, 'id' => $id], ['password'])),
+                'user' => (removeFields([...$data, 'id' => $user_id], ['password'])),
             ]);
         } else {
             handleError('Đăng ký thất bại');
@@ -39,7 +39,7 @@ class User extends Controller
         ];
         $user = $this->userModel->loginUser($data);
         if ($user) {
-            $_SESSION['id'] = $user['id'];
+            $_SESSION['user_id'] = $user['id'];
             $_SESSION['phone'] = $user['phone'];
             handleMessage([
                 'status' => 'success',
@@ -54,7 +54,7 @@ class User extends Controller
     public function update()
     {
         $data = [
-            'id' => $_SESSION['id'],
+            'id' => $_SESSION['user_id'],
             'full_name' => $_POST['full_name'],
             'email' => $_POST['email'],
             'phone' => $_POST['phone'],
@@ -75,18 +75,19 @@ class User extends Controller
                 'user' => $data,
             ]);
         } else {
+            unload();
             handleError('Cập nhật thất bại');
         }
     }
 
     public function auth()
     {
-        $id = $_SESSION['id'];
+        $user_id = $_SESSION['user_id'];
         $phone = $_SESSION['phone'];
-        if (!$id || !$phone) {
+        if (!$user_id || !$phone) {
             handleError('Không có thông tin');
         }
-        $user = $this->userModel->findUser($id, $phone);
+        $user = $this->userModel->findUser($user_id, $phone);
         if ($user) {
             handleMessage([
                 'status' => 'success',
@@ -100,7 +101,7 @@ class User extends Controller
     }
     public function logout()
     {
-        $_SESSION['id'] = null;
+        $_SESSION['user_id'] = null;
         $_SESSION['phone'] = null;
         handleSuccess('Đăng xuất thành công');
     }

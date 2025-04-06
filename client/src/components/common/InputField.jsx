@@ -8,6 +8,7 @@ const InputField = ({
   icon: Icon,
   children, 
   className = '',
+  helpText,
   ...props 
 }) => {
   // Kiểm tra nếu là select hoặc textarea
@@ -39,6 +40,9 @@ const InputField = ({
           {children}
         </Component>
       </motion.div>
+      {helpText && (
+        <p className="mt-1 text-sm text-gray-500">{helpText}</p>
+      )}
       {error && (
         <motion.p
           initial={{ opacity: 0 }}

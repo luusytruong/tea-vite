@@ -1,3 +1,5 @@
+import { lazy } from "react";
+import { createBrowserRouter } from "react-router-dom";
 import { ROUTES } from "./config";
 import MainLayout from "~/components/layout/MainLayout";
 import Home from "~/pages/Home";
@@ -13,8 +15,8 @@ import OrderSuccess from "~/pages/OrderSuccess";
 import Profile from "~/pages/Profile";
 import Login from "~/pages/Login";
 import Register from "~/pages/Register";
-import { createBrowserRouter } from "react-router-dom";
-import { lazy } from "react";
+import OrderTracking from "~/pages/OrderTracking";
+import OrdersList from "~/pages/user/OrdersList";
 
 // Lazy loading các components
 const Dashboard = lazy(() => import("~/pages/admin/Dashboard"));
@@ -41,7 +43,7 @@ export const routes = [
         element: <Products />,
       },
       {
-        path: ROUTES.PRODUCTS + "/:slugId",
+        path: ROUTES.PRODUCTS + "/:slug",
         element: <ProductDetail />,
       },
       {
@@ -57,6 +59,14 @@ export const routes = [
         element: <OrderSuccess />,
       },
       {
+        path: ROUTES.ORDER_LIST,
+        element: <OrdersList />,
+      },
+      {
+        path: ROUTES.ORDER_TRACKING + "/:slug",
+        element: <OrderTracking />,
+      },
+      {
         path: ROUTES.ABOUT,
         element: <About />,
       },
@@ -65,7 +75,7 @@ export const routes = [
         element: <Blog />,
       },
       {
-        path: ROUTES.BLOG + "/:slugId",
+        path: ROUTES.BLOG + "/:slug",
         element: <BlogDetail />,
       },
       {

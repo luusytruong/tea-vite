@@ -6,13 +6,14 @@ import { Check, ChevronRight, Package, Clock } from "lucide-react";
 
 const OrderSuccess = () => {
   const location = useLocation();
-  
+
   // Nếu không có state (người dùng truy cập trực tiếp), chuyển về trang chủ
   if (!location.state) {
     return <Navigate to={ROUTES.ROOT} replace />;
   }
 
-  const { orderNumber, orderDetails } = location.state;
+  const { slug, orderDetails } = location.state;
+  console.log(location.state);
 
   return (
     <motion.div
@@ -40,26 +41,29 @@ const OrderSuccess = () => {
             Đặt hàng thành công!
           </h1>
           <p className="text-gray-600 mb-6">
-            Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.
+            Cảm ơn bạn đã đặt hàng. Chúng tôi sẽ liên hệ với bạn trong thời gian
+            sớm nhất.
           </p>
 
           <div className="bg-gray-50 rounded-xl p-6 mb-8">
             <div className="text-left space-y-4">
               <div>
                 <p className="text-sm text-gray-600">Mã đơn hàng:</p>
-                <p className="font-medium text-gray-800">{orderNumber}</p>
+                <p className="font-medium text-gray-800">{slug}</p>
               </div>
-              
+
               <div>
                 <p className="text-sm text-gray-600">Thời gian đặt hàng:</p>
                 <p className="font-medium text-gray-800">
-                  {new Date(orderDetails.orderDate).toLocaleString('vi-VN')}
+                  {new Date(orderDetails.order_date).toLocaleString("vi-VN")}
                 </p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-600">Người nhận:</p>
-                <p className="font-medium text-gray-800">{orderDetails.fullName}</p>
+                <p className="font-medium text-gray-800">
+                  {orderDetails.full_name}
+                </p>
                 <p className="text-gray-600">{orderDetails.phone}</p>
                 {orderDetails.email && (
                   <p className="text-gray-600">{orderDetails.email}</p>
@@ -69,30 +73,33 @@ const OrderSuccess = () => {
               <div>
                 <p className="text-sm text-gray-600">Địa chỉ giao hàng:</p>
                 <p className="font-medium text-gray-800">
-                  {orderDetails.address}, {orderDetails.ward}, {orderDetails.district}, {orderDetails.city}
+                  {orderDetails.address}, {orderDetails.ward},{" "}
+                  {orderDetails.district}, {orderDetails.city}
                 </p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-600">Phương thức thanh toán:</p>
                 <p className="font-medium text-gray-800">
-                  {orderDetails.paymentMethod === 'cod' 
-                    ? 'Thanh toán khi nhận hàng' 
-                    : 'Chuyển khoản ngân hàng'}
+                  {orderDetails.payment_method === "cod"
+                    ? "Thanh toán khi nhận hàng"
+                    : "Chuyển khoản ngân hàng"}
                 </p>
               </div>
 
               {orderDetails.note && (
                 <div>
                   <p className="text-sm text-gray-600">Ghi chú:</p>
-                  <p className="font-medium text-gray-800">{orderDetails.note}</p>
+                  <p className="font-medium text-gray-800">
+                    {orderDetails.note}
+                  </p>
                 </div>
               )}
 
               <div>
                 <p className="text-sm text-gray-600">Tổng tiền:</p>
                 <p className="font-medium text-green-600 text-lg">
-                  {orderDetails.total.toLocaleString('vi-VN')}đ
+                  {orderDetails.total_price.toLocaleString("vi-VN")}đ
                 </p>
               </div>
             </div>
@@ -106,9 +113,9 @@ const OrderSuccess = () => {
               Về trang chủ
               <ChevronRight size={18} className="ml-2" />
             </Link>
-            
+
             <Link
-              to={`/order-tracking/${orderNumber}`}
+              to={`${ROUTES.ORDER_TRACKING}/${slug}`}
               className="inline-flex items-center justify-center px-6 py-3 border-2 border-green-600 text-green-600 rounded-xl hover:bg-green-50 transition-colors duration-300"
             >
               Theo dõi đơn hàng
@@ -119,7 +126,7 @@ const OrderSuccess = () => {
           <div className="mt-8 pt-6 border-t border-gray-100">
             <div className="flex items-center justify-center text-sm text-gray-600">
               <Clock size={16} className="mr-2" />
-              <span>Dự kiến giao hàng trong vòng 1-2 giờ</span>
+              <span>Dự kiến giao hàng nội thành 1-2 giờ</span>
             </div>
           </div>
         </motion.div>
@@ -128,4 +135,4 @@ const OrderSuccess = () => {
   );
 };
 
-export default OrderSuccess; 
+export default OrderSuccess;

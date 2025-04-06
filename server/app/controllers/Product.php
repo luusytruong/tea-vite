@@ -8,14 +8,9 @@ class Product extends Controller
         $this->productModel = $this->createModel("ProductModel");
     }
 
-    public function create()
+    public function list()
     {
-        validProductCreate();
-        $data = [
-            'name' => $_POST['name'],
-            'price' => $_POST['price'],
-            'description' => $_POST['description'],
-        ];
-        $this->productModel->createProduct($data);
+        $products = $this->productModel->getAllProducts();
+        echo json_encode($products);
     }
 }

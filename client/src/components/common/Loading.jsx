@@ -1,6 +1,6 @@
 import React, { memo, useEffect } from "react";
 
-const Loading = memo(({ text = "Đợi một chút..." }) => {
+const Loading = memo(({ text = "Đang tải dữ liệu..." }) => {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -16,7 +16,7 @@ const Loading = memo(({ text = "Đợi một chút..." }) => {
           {text}
         </div>
         {/* Line chạy qua lại */}
-        <div className="w-32 h-1 bg-gray-200 rounded-full overflow-hidden">
+        <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
           <div className="w-16 h-full bg-green-500 animate-[loading_1s_ease-in-out_infinite]" />
         </div>
       </div>
@@ -37,7 +37,7 @@ const styles = `
 
   @keyframes fade {
     0%, 100% {
-      opacity: 0.6;
+      opacity: 0.4;
     }
     50% {
       opacity: 1;

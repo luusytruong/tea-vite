@@ -5,7 +5,7 @@ import Footer from "./Footer";
 
 const MainLayout = memo(() => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen h-fit flex flex-col">
       <Header />
       <main className="flex-grow" role="main">
         <Outlet />

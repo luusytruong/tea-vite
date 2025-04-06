@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ROUTES } from "~/routes";
@@ -13,15 +13,29 @@ import {
 } from "lucide-react";
 import CartItemCard from "~/components/common/CartItemCard";
 import { useCart } from "~/context/CartContext";
+import { useAuth } from "~/context/AuthContext";
+import { useHome } from "~/context/HomeContext";
+import Loading from "~/components/common/Loading";
+import useFormData from "~/hooks/useFormData";
 
-const Cart = () => {
-  const {
-    cartItems,
-    handleRemove,
-    handleUpdateQuantity,
-    handleClearCart,
-    calculateTotal,
-  } = useCart();
+const Cart = memo(() => {
+  const { cartItems, actionCart, calculateTotal } = useCart();
+  const { isLoading } = useAuth();
+  const { products } = useHome();
+
+  if (isLoading || !products.length) return <Loading />;
+
+  const handleRemove = async (productId) => {
+    await actionCart(useFormData({ product_id: productId }), "remove");
+  };
+
+  const handleUpdateQuantity = async (productId, action) => {
+    await actionCart(useFormData({ product_id: productId }), action);
+  };
+
+  const handleClearCart = async () => {
+    await actionCart(null, "clear");
+  };
 
   return (
     <motion.div
@@ -62,10 +76,13 @@ const Cart = () => {
 
                 <div className="p-4 sm:p-6 space-y-4 max-h-[600px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                   <AnimatePresence>
-                    {cartItems.map((product) => (
+                    {cartItems.map((item) => (
                       <CartItemCard
-                        key={product.id}
-                        product={product}
+                        key={item.product_id}
+                        product={{
+                          ...products.find((p) => p.id === item.product_id),
+                          quantity: item.quantity,
+                        }}
                         onRemove={handleRemove}
                         onUpdateQuantity={handleUpdateQuantity}
                       />
@@ -100,7 +117,7 @@ const Cart = () => {
                       Giao hàng nhanh
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Nhận hàng trong vòng 1-2 giờ tại Hà Nội
+                      Nhận hàng trong vòng 1-2 giờ tại Thái Nguyên
                     </p>
                   </div>
                 </div>
@@ -123,7 +140,7 @@ const Cart = () => {
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-gray-600">
                       <span>Tạm tính ({cartItems.length} sản phẩm):</span>
-                      <span>{calculateTotal.toLocaleString("vi-VN")}đ</span>
+                      <span>{calculateTotal?.toLocaleString("vi-VN")}đ</span>
                     </div>
                     <div className="flex justify-between text-gray-600">
                       <span>Phí vận chuyển:</span>
@@ -136,7 +153,7 @@ const Cart = () => {
                   <div className="flex justify-between font-medium text-lg pt-4 border-t border-gray-100">
                     <span>Tổng cộng:</span>
                     <span className="text-green-700 font-medium">
-                      {calculateTotal.toLocaleString("vi-VN")}đ
+                      {calculateTotal?.toLocaleString("vi-VN")}đ
                     </span>
                   </div>
                 </div>
@@ -161,7 +178,6 @@ const Cart = () => {
                   <div className="text-xs text-center text-gray-500 mt-4 space-y-1">
                     <p>* Đảm bảo chất lượng sản phẩm</p>
                     <p>* Hỗ trợ đổi trả trong vòng 7 ngày</p>
-                    <p>* Dự kiến giao hàng trong 1-2 giờ</p>
                   </div>
                 </div>
               </motion.div>
@@ -195,6 +211,8 @@ const Cart = () => {
       </div>
     </motion.div>
   );
-};
+});
+
+Cart.displayName = "Cart";
 
 export default Cart;

@@ -5,27 +5,40 @@ import { ShoppingCart, Star, Heart } from "lucide-react";
 import { ROUTES } from "~/routes";
 import { formatPrice } from "~/utils/format";
 import { motion } from "framer-motion";
+import { useCart } from "~/context/CartContext";
+import useFormData from "~/hooks/useFormData";
+import { IMAGE_URL } from "~/context/AuthContext";
 
 const ProductCard = memo(({ product }) => {
+  const { actionCart } = useCart();
   const {
     id,
     name,
     slug,
-    shortDescription,
+    short_description,
     price,
-    originalPrice,
+    original_price,
     image,
     discount,
     rating,
-    reviewCount,
+    review_count,
   } = product;
+
+  const handleAddToCart = async () => {
+    await actionCart(
+      useFormData({
+        product_id: product.id,
+        quantity: 1,
+      }),
+      "add"
+    );
+  };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
       whileTap={{ scale: 0.98 }}
-      className="group relative bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:translate-y-[-10px]  transition-transform duration-300"
+      whileHover={{ y: -5 }}
+      className="group relative bg-white/70 backdrop-blur-sm rounded-2xl overflow-hidden shadow-lg hover:shadow-xl  transition-shadow duration-120"
     >
       {/* Favorite Button */}
       <motion.button
@@ -51,11 +64,11 @@ const ProductCard = memo(({ product }) => {
 
       {/* Image Container */}
       <div className="relative overflow-hidden aspect-square">
-        <Link to={`${ROUTES.PRODUCTS}/${slug}-${id}`}>
+        <Link to={`${ROUTES.PRODUCTS}/${slug}`}>
           <motion.img
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.6 }}
-            src={image}
+            src={`${IMAGE_URL}${image}`}
             alt={name}
             className="w-full h-full object-cover"
           />
@@ -76,19 +89,19 @@ const ProductCard = memo(({ product }) => {
                 <Star
                   key={index}
                   className={`w-3.5 h-3.5 ${
-                    index < rating
+                    index < rating || 5
                       ? "text-yellow-400 fill-current"
                       : "text-gray-200"
                   }`}
                 />
               ))}
             </div>
-            <span className="text-xs text-gray-500">({reviewCount})</span>
+            <span className="text-xs text-gray-500">({review_count || 0})</span>
           </div>
         </div>
 
         {/* Title */}
-        <Link to={`${ROUTES.PRODUCTS}/${slug}-${id}`}>
+        <Link to={`${ROUTES.PRODUCTS}/${slug}`}>
           <h3 className="text-lg font-medium text-gray-800 mb-2 line-clamp-2 group-hover:text-green-700 transition-colors duration-300">
             {name}
           </h3>
@@ -96,7 +109,7 @@ const ProductCard = memo(({ product }) => {
 
         {/* Description */}
         <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-          {shortDescription ||
+          {short_description ||
             "Sản phẩm chất lượng cao, được chọn lọc kỹ lưỡng"}
         </p>
 
@@ -106,14 +119,15 @@ const ProductCard = memo(({ product }) => {
             <div className="text-xl font-medium text-green-700">
               {formatPrice(price)}
             </div>
-            {originalPrice && (
+            {original_price && (
               <div className="text-sm text-gray-400 line-through">
-                {formatPrice(originalPrice)}
+                {formatPrice(original_price)}
               </div>
             )}
           </div>
 
           <motion.button
+            onClick={handleAddToCart}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-green-600 text-white hover:bg-green-700 transition-colors duration-300"
@@ -132,13 +146,13 @@ ProductCard.propTypes = {
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
     slug: PropTypes.string.isRequired,
-    shortDescription: PropTypes.string,
+    short_description: PropTypes.string,
     price: PropTypes.number.isRequired,
-    originalPrice: PropTypes.number,
+    original_price: PropTypes.number,
     image: PropTypes.string.isRequired,
     discount: PropTypes.number,
     rating: PropTypes.number.isRequired,
-    reviewCount: PropTypes.number.isRequired,
+    review_count: PropTypes.number.isRequired,
     category: PropTypes.string.isRequired,
   }).isRequired,
 };

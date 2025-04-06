@@ -2,7 +2,7 @@ import { memo, useState } from "react";
 import { motion } from "framer-motion";
 import { Leaf, Package, CheckCircle2, ArrowRight } from "lucide-react";
 import { steps } from "~/data/steps";
-import teaPattern from "~/assets/images/bg-3.jpg";
+import teaPattern from "~/assets/images/bg-3.webp";
 
 const ProcessSection = memo(() => {
   const [activeStep, setActiveStep] = useState(1);

@@ -22,7 +22,7 @@ const BlogCard = memo(({ blog }) => {
     <div className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
       {/* Image Container */}
       <div className="relative overflow-hidden aspect-[16/9]">
-        <Link to={`${ROUTES.BLOG}/${slug}-${id}`}>
+        <Link to={`${ROUTES.BLOG}/${slug}`}>
           <img
             src={image}
             alt={title}
@@ -41,7 +41,7 @@ const BlogCard = memo(({ blog }) => {
         {/* Category */}
 
         {/* Title */}
-        <Link to={`${ROUTES.BLOG}/${slug}-${id}`}>
+        <Link to={`${ROUTES.BLOG}/${slug}`}>
           <h3 className="text-xl font-medium text-gray-800 mb-3 group-hover:text-green-700 transition-colors duration-300 line-clamp-2">
             {title}
           </h3>

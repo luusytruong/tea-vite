@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { ROUTES } from "~/routes/config";
 import { useToast } from "./ToastContext";
 import Loading from "~/components/common/Loading";
-import { motion } from "framer-motion";
 
 // Tạo context với giá trị mặc định null
 const AuthContext = createContext(null);
-export const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL;
+const IMAGE_URL = API_URL + "public/uploads/";
 
-export const AuthProvider = ({ children }) => {
+const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,12 +30,11 @@ export const AuthProvider = ({ children }) => {
       });
 
       const data = await response.json();
-      console.log(data);
+
       if (data.status === "success") {
         setUser(data.user[0]);
         setIsAuthenticated(true);
       }
-      setIsLoading(false);
     } catch (error) {
       console.error("Lỗi kiểm tra session:", error);
     }
@@ -128,8 +127,6 @@ export const AuthProvider = ({ children }) => {
 
       if (data.status === "success") {
         setUser(data.user);
-        setIsAuthenticated(true);
-        navigate(ROUTES.ACCOUNT);
       }
     } catch (error) {
       console.error(error);
@@ -154,26 +151,19 @@ export const AuthProvider = ({ children }) => {
         setIsLoading,
       }}
     >
-      {isLoading ? (
-        <Loading />
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          {children}
-        </motion.div>
-      )}
+      {isLoading ? <Loading /> : null}
+      {children}
     </AuthContext.Provider>
   );
 };
 
 // Hook useAuth với kiểm tra context
-export const useAuth = () => {
+const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error("useAuth phải được sử dụng trong AuthProvider");
   }
   return context;
 };
+
+export { AuthContext, AuthProvider, useAuth, API_URL, IMAGE_URL };

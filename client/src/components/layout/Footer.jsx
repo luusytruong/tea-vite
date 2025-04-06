@@ -1,5 +1,5 @@
 import { memo, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import { company } from "~/data/company";
 import { usePageViews } from "~/hooks/usePageViews";
 import {
@@ -16,7 +16,6 @@ import {
 
 const Footer = memo(() => {
   const footerRef = useRef(null);
-  const isInView = useInView(footerRef, { once: false, amount: 0.2 });
   const { views } = usePageViews();
 
   const containerVariants = {
@@ -56,7 +55,8 @@ const Footer = memo(() => {
       className="bg-green-800 text-white py-8 overflow-hidden z-10"
       role="contentinfo"
       initial="hidden"
-      animate={isInView ? "visible" : "hidden"}
+      whileInView="visible"
+      viewport={{ once: true }}
       variants={containerVariants}
     >
       <div className="container mx-auto px-4">
@@ -196,7 +196,8 @@ const Footer = memo(() => {
           className="mt-8 pt-8 border-t border-green-700 text-center text-green-100"
           variants={itemVariants}
           initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
           <motion.p

@@ -51,6 +51,8 @@ class App
             //process method
             if (!empty($url_array[0])) {
                 $this->action = strtolower($url_array[0]);
+            } else {
+                handleError('Phương thức không tồn tại');
             }
 
             //check method

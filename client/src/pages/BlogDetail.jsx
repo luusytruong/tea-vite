@@ -31,10 +31,9 @@ const staggerContainer = {
 };
 
 const BlogDetail = memo(() => {
-  const { slugId } = useParams();
-  const id = slugId.split("-").pop();
-  const blog = blogs.find((b) => b.id === parseInt(id));
-  const { stats, incrementViews, toggleLike } = useBlogStats(parseInt(id));
+  const { slug } = useParams();
+  const blog = blogs.find((b) => b.slug === slug);
+  const { stats, incrementViews, toggleLike } = useBlogStats(blog.id);
 
   useEffect(() => {
     // Tăng lượt xem khi component mount

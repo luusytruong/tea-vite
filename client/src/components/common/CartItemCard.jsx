@@ -5,20 +5,32 @@ import { formatPrice } from "~/utils/format";
 import { ROUTES } from "~/routes";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { IMAGE_URL } from "~/context/AuthContext";
 const CartItemCard = memo(({ product, onRemove, onUpdateQuantity }) => {
-  const { id, name, slug, price, image, quantity, variant, weight, originalPrice } = product;
+  const {
+    id,
+    name,
+    slug,
+    price,
+    image,
+    quantity,
+    variant,
+    weight,
+    original_price,
+  } = product;
 
   // Sử dụng useCallback để tránh re-render không cần thiết
   const handleDecrease = useCallback(() => {
-    onUpdateQuantity(id, Math.max(1, quantity - 1));
-  }, [id, quantity, onUpdateQuantity]);
+    onUpdateQuantity(id, "down");
+  }, [id, onUpdateQuantity]);
 
   const handleIncrease = useCallback(() => {
-    onUpdateQuantity(id, quantity + 1);
-  }, [id, quantity, onUpdateQuantity]);
+    onUpdateQuantity(id, "up");
+  }, [id, onUpdateQuantity]);
 
-  const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+  const discount = original_price
+    ? Math.round(((original_price - price) / original_price) * 100)
+    : 0;
 
   return (
     <AnimatePresence>
@@ -33,16 +45,16 @@ const CartItemCard = memo(({ product, onRemove, onUpdateQuantity }) => {
         {/* Ảnh sản phẩm - đảm bảo tỷ lệ 1:1 */}
         <div className="relative w-[100px] min-w-[100px] sm:w-[140px] sm:min-w-[140px] aspect-square shrink-0">
           <NavLink
-            to={`${ROUTES.PRODUCTS}/${slug}-${id}`}
+            to={`${ROUTES.PRODUCTS}/${slug}`}
             className="block w-full h-full overflow-hidden"
           >
-            <motion.div 
+            <motion.div
               className="w-full h-full relative"
               whileHover={{ scale: 1.15 }}
               transition={{ duration: 0.4 }}
             >
               <img
-                src={image}
+                src={`${IMAGE_URL}${image}`}
                 alt={name}
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -58,7 +70,7 @@ const CartItemCard = memo(({ product, onRemove, onUpdateQuantity }) => {
         {/* Thông tin sản phẩm */}
         <div className="flex-grow min-w-0 p-2 xs:p-3 sm:p-4 flex flex-col justify-between">
           <div>
-            <NavLink to={`${ROUTES.PRODUCTS}/${slug}-${id}`}>
+            <NavLink to={`${ROUTES.PRODUCTS}/${slug}`}>
               <h3 className="text-sm xs:text-base sm:text-lg font-medium text-gray-800 hover:text-green-600 transition-colors duration-300 line-clamp-2">
                 {name}
               </h3>
@@ -111,9 +123,9 @@ const CartItemCard = memo(({ product, onRemove, onUpdateQuantity }) => {
               >
                 {formatPrice(price * (quantity || 1))}
               </motion.p>
-              {originalPrice && (
+              {original_price && (
                 <p className="text-xs sm:text-sm text-gray-400 line-through">
-                  {formatPrice(originalPrice * (quantity || 1))}
+                  {formatPrice(original_price * (quantity || 1))}
                 </p>
               )}
             </div>
@@ -145,7 +157,7 @@ CartItemCard.propTypes = {
     quantity: PropTypes.number,
     variant: PropTypes.string,
     weight: PropTypes.string,
-    originalPrice: PropTypes.number,
+    original_price: PropTypes.number,
   }).isRequired,
   onRemove: PropTypes.func,
   onUpdateQuantity: PropTypes.func,
@@ -158,4 +170,4 @@ CartItemCard.defaultProps = {
 
 CartItemCard.displayName = "CartItemCard";
 
-export default CartItemCard; 
+export default CartItemCard;

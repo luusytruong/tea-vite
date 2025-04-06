@@ -17,7 +17,7 @@ import InputField from "~/components/common/InputField";
 import Avatar from "~/components/common/Avatar";
 import AddressSelect from "~/components/common/AddressSelect";
 import { ROUTES } from "~/routes";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import useFormData from "~/hooks/useFormData";
 import ProfileSection from "~/components/profile/ProfileSection";
 
@@ -381,26 +381,9 @@ const Profile = () => {
               title="Đơn Hàng Gần Đây"
               className="overflow-hidden"
             >
-              <div className="space-y-4">
-                {[1, 2, 3].map((order) => (
-                  <motion.div
-                    key={order}
-                    className="bg-gray-50 rounded-lg p-4 flex items-center justify-between border border-gray-100"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div className="flex items-center gap-4">
-                      <ShoppingBag className="text-green-600" />
-                      <div>
-                        <p className="font-medium">Đơn hàng #{1000 + order}</p>
-                        <p className="text-sm text-gray-600">
-                          Ngày đặt: 20/03/2024
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-green-600 font-medium">500.000đ</span>
-                  </motion.div>
-                ))}
-              </div>
+              <Link to={ROUTES.ORDER_LIST} className="text-green-600">
+                Xem tất cả đơn hàng
+              </Link>
             </ProfileSection>
           </div>
         </motion.div>

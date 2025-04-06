@@ -6,6 +6,8 @@ export const ROUTES = {
   CART: "/gio-hang",
   CHECKOUT: "/thanh-toan",
   ORDER_SUCCESS: "/thanh-toan-thanh-cong",
+  ORDER_TRACKING: "/theo-doi-don-hang",
+  ORDER_LIST: "/danh-sach-don-hang",
   ACCOUNT: "/tai-khoan",
   LOGIN: "/dang-nhap",
   REGISTER: "/dang-ky",

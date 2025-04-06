@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 
-export const AdminContext = createContext();
+const AdminContext = createContext();
 
-export const AdminProvider = ({ children }) => {
+const AdminProvider = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [admin, setAdmin] = useState(null);
   const { user, isLoading } = useAuth();
@@ -23,6 +23,8 @@ export const AdminProvider = ({ children }) => {
   );
 };
 
-export const useAdmin = () => {
+const useAdmin = () => {
   return useContext(AdminContext);
 };
+
+export { AdminContext, AdminProvider, useAdmin };

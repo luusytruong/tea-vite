@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { memo, useRef, useState } from "react";
-import logo from "~/assets/logo.png";
-import name from "~/assets/name.png";
+import logo from "~/assets/logo.webp";
+import name from "~/assets/name.webp";
 import { ROUTES } from "~/routes";
 import { company } from "~/data/company";
 import { motion } from "framer-motion";
@@ -16,9 +16,12 @@ import {
   Leaf,
   Info,
   Library,
+  Package,
 } from "lucide-react";
+import { useCart } from "~/context/CartContext";
 
 const Header = memo(() => {
+  const { itemCount } = useCart();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const ref = useRef();
@@ -160,7 +163,7 @@ const Header = memo(() => {
             <Link to={ROUTES.CART} className="relative group">
               <ShoppingCart className="w-5 h-5 text-gray-700 group-hover:text-green-700 transition-colors" />
               <span className="absolute -top-2 -right-2 bg-green-700 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-                0
+                {itemCount}
               </span>
             </Link>
 
@@ -208,6 +211,18 @@ const Header = memo(() => {
                 >
                   <User className="w-4 h-4" />
                   <span>Tài khoản</span>
+                </Link>
+                <Link
+                  to={ROUTES.ORDER_LIST}
+                  className={`flex items-center p-0.5 gap-2 text-base font-normal hover:text-green-700 transition-colors ${
+                    isActive(ROUTES.ORDER_LIST)
+                      ? "text-green-700"
+                      : "text-gray-700"
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  <Package className="w-4 h-4" />
+                  <span>Đơn hàng</span>
                 </Link>
                 <Link
                   to={ROUTES.ROOT}

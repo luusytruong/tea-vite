@@ -1,7 +1,6 @@
 import { memo, useState, useEffect, useCallback } from "react";
 import { useDebounce } from "~/hooks/useDebounce";
 import ProductCard from "~/components/common/ProductCard";
-import { products, categories } from "~/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -12,7 +11,9 @@ import {
   X,
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
-import teaPattern from "~/assets/images/bg-2.jpg";
+import teaPattern from "~/assets/images/bg-2.webp";
+import { useHome } from "~/context/HomeContext";
+import { useAuth } from "~/context/AuthContext";
 
 const FilterModal = memo(
   ({ isOpen, onClose, categories, onCategorySelect, onSortSelect }) => (
@@ -93,15 +94,16 @@ const FilterModal = memo(
 );
 
 const Products = memo(() => {
+  const { isLoading } = useAuth();
   const location = useLocation();
   const [searchTerm, setSearchTerm] = useState(location.state || "");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
-  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const productsPerPage = 12;
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const { products, categories } = useHome();
 
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
@@ -110,7 +112,7 @@ const Products = memo(() => {
         .toLowerCase()
         .includes(debouncedSearchTerm.toLowerCase());
     const matchesCategory =
-      selectedCategory === "all" || product.categoryId === selectedCategory;
+      selectedCategory === "all" || product.category_id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -135,11 +137,6 @@ const Products = memo(() => {
   );
 
   const totalPages = Math.ceil(sortedProducts.length / productsPerPage);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
-  }, []);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -197,7 +194,7 @@ const Products = memo(() => {
       {/* Search and Filter Section */}
       <div className="container mx-auto px-4">
         <motion.div
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: 20, opacity: 1 }}
           animate={{ y: 0, opacity: 1 }}
           className="bg-white -mt-8 rounded-2xl shadow-lg p-6 relative z-20 backdrop-blur-lg"
         >
@@ -272,12 +269,12 @@ const Products = memo(() => {
                     </div>
                   </div>
                 ))
-            : currentProducts.map((product) => (
+            : currentProducts.map((product, index) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ y: -5 }}
+                  transition={{ duration: 0.32, delay: index * 0.1 }}
                 >
                   <ProductCard product={product} />
                 </motion.div>

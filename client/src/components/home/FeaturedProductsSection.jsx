@@ -5,20 +5,19 @@ import { motion } from "framer-motion";
 import { Leaf, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ROUTES } from "~/routes";
-import teaPattern from "~/assets/images/bg-1.jpg";
+import { useHome } from "~/context/HomeContext";
+import { useAuth } from "~/context/AuthContext";
 
 const FeaturedProductsSection = memo(() => {
-  const [isLoading, setIsLoading] = useState(true);
+  const { products } = useHome();
+  const { isLoading } = useAuth();
   const [featuredProducts, setFeaturedProducts] = useState([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setFeaturedProducts(products);
-      setIsLoading(false);
-    }, 500);
+    setFeaturedProducts(products.filter((product) => product.is_featured));
+  }, [products]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  if (isLoading || !products.length) return null;
 
   return (
     <section className="relative py-24 overflow-hidden bg-gradient-to-b from-green-50 to-white">
@@ -61,7 +60,7 @@ const FeaturedProductsSection = memo(() => {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    transition={{ duration: 0.5, delay: index * 0.05 }}
                     className="animate-pulse"
                   >
                     <div className="bg-white/50 backdrop-blur-sm rounded-2xl shadow-lg overflow-hidden">

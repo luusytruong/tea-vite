@@ -1,9 +1,8 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, memo } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "~/routes";
 import {
-  ChevronLeft,
   CreditCard,
   Truck,
   DollarSign,
@@ -13,67 +12,72 @@ import {
 } from "lucide-react";
 import { useCart } from "~/context/CartContext";
 import { useAuth } from "~/context/AuthContext";
+import { IMAGE_URL } from "~/context/AuthContext";
 import InputField from "~/components/common/InputField";
 import AddressSelect from "~/components/common/AddressSelect";
 
 // Animation variants
-const pageVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 }
-};
-
 const containerVariants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1 }
+  animate: { opacity: 1 },
 };
 
 const itemVariants = {
   initial: { opacity: 0 },
-  animate: { opacity: 1 }
+  animate: { opacity: 1 },
 };
 
 // Memoized Components
-const PaymentMethodCard = React.memo(({
-  selected,
-  method,
-  icon: Icon,
-  title,
-  description,
-  extraInfo,
-  onChange,
-}) => (
-  <div className="relative">
-    <motion.label
-      className={`block p-4 rounded-xl border-2 cursor-pointer transition-colors duration-200
-        ${selected ? "border-green-500 bg-green-50/50" : "border-gray-200 hover:border-gray-300"}`}
-    >
-      <div className="flex items-start">
-        <input
-          type="radio"
-          name="paymentMethod"
-          value={method}
-          checked={selected}
-          onChange={onChange}
-          className="mt-1.5 h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500"
-        />
-        <div className="ml-3 flex-grow">
-          <span className="flex items-center text-gray-800 font-medium text-base">
-            <Icon size={20} className="mr-2 text-green-600" />
-            {title}
-          </span>
-          <span className="text-base text-gray-600 block mt-1">{description}</span>
+const PaymentMethodCard = React.memo(
+  ({
+    selected,
+    method,
+    icon: Icon,
+    title,
+    description,
+    extraInfo,
+    onChange,
+    ...props
+  }) => (
+    <div className="relative">
+      <motion.label
+        className={`block p-4 rounded-xl border-2 cursor-pointer transition-colors duration-200
+        ${
+          selected
+            ? "border-green-500 bg-green-50/50"
+            : "border-gray-200 hover:border-gray-300"
+        }`}
+      >
+        <div className="flex items-start">
+          <input
+            type="radio"
+            name="payment_method"
+            value={method}
+            checked={selected}
+            onChange={onChange}
+            className="mt-1.5 h-4 w-4 text-green-600 border-gray-300 focus:ring-green-500"
+            {...props}
+          />
+          <div className="ml-3 flex-grow">
+            <span className="flex items-center text-gray-800 font-medium text-base">
+              <Icon size={20} className="mr-2 text-green-600" />
+              {title}
+            </span>
+            <span className="text-base text-gray-600 block mt-1">
+              {description}
+            </span>
+          </div>
         </div>
-      </div>
-    </motion.label>
-    
-    {selected && extraInfo && (
-      <div className="mt-3 p-4 bg-white rounded-lg shadow-sm text-base border border-green-100">
-        {extraInfo}
-      </div>
-    )}
-  </div>
-));
+      </motion.label>
+
+      {selected && extraInfo && (
+        <div className="mt-3 p-4 bg-white rounded-lg shadow-sm text-base border border-green-100">
+          {extraInfo}
+        </div>
+      )}
+    </div>
+  )
+);
 
 // Cart Item Component
 const CartItem = React.memo(({ item }) => (
@@ -88,7 +92,7 @@ const CartItem = React.memo(({ item }) => (
       <motion.img
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        src={item.image}
+        src={`${IMAGE_URL}${item.image}`}
         alt={item.name}
         className="w-full h-full object-cover"
         loading="lazy"
@@ -96,15 +100,15 @@ const CartItem = React.memo(({ item }) => (
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        className="absolute top-0 right-0 bg-green-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-bl-lg"
+        className="absolute top-0 right-0 bg-green-700 text-white text-xs w-5 h-5 flex items-center justify-center rounded-bl-lg"
       >
         {item.quantity}
       </motion.div>
     </div>
     <div className="flex-grow">
       <h3 className="text-sm font-medium text-gray-800">{item.name}</h3>
-      <p className="text-sm text-gray-500">
-        {item.variant} {item.weight && `- ${item.weight}`}
+      <p className="text-xs text-green-600 bg-gray-100 rounded-full px-2 py-1 w-fit">
+        {item?.weight}
       </p>
     </div>
     <div className="text-right">
@@ -122,12 +126,14 @@ const PAYMENT_METHODS = [
     title: "Thanh toán khi nhận hàng (COD)",
     description: "Thanh toán bằng tiền mặt khi nhận hàng",
     icon: DollarSign,
-    extraInfo: "Vui lòng chuẩn bị tiền mặt khi nhận hàng. Shipper sẽ không thối tiền lớn."
+    extraInfo:
+      "Vui lòng chuẩn bị tiền mặt khi nhận hàng. Shipper sẽ không thối tiền lớn.",
   },
   {
     method: "bank",
     title: "Chuyển khoản ngân hàng",
-    description: "Chuyển khoản qua tài khoản ngân hàng",
+    // description: "Chuyển khoản qua tài khoản ngân hàng",
+    description: "Đang phát triển ...",
     icon: CreditCard,
     extraInfo: (
       <div className="space-y-2">
@@ -142,35 +148,45 @@ const PAYMENT_METHODS = [
           Đơn hàng sẽ được xác nhận sau khi chúng tôi nhận được thanh toán
         </p>
       </div>
-    )
-  }
+    ),
+  },
 ];
 
-const Checkout = () => {
+const Checkout = memo(() => {
   const navigate = useNavigate();
-  const { cartItems, calculateTotal, handleClearCart } = useCart();
+  const { state } = useLocation();
+  const { isLoading } = useAuth();
+  const { cartItems, calculateTotal, buyNowItems, setBuyNowItems } = useCart();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  
+
   const [formData, setFormData] = useState({
-    fullName: "",
+    full_name: "",
     phone: "",
     email: "",
     address: "",
     city: "",
     district: "",
     ward: "",
-    paymentMethod: "cod",
+    payment_method: "cod",
     note: "",
   });
 
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
+    if (isLoading) return;
+
+    if (!buyNowItems.length && !cartItems.length) {
+      navigate(ROUTES.CART);
+    }
+  }, [buyNowItems, cartItems]);
+
+  useEffect(() => {
     if (user) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        fullName: user.fullName || "",
+        full_name: user.full_name || "",
         phone: user.phone || "",
         email: user.email || "",
         address: user.address || "",
@@ -183,12 +199,12 @@ const Checkout = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [name]: null,
       }));
@@ -196,23 +212,23 @@ const Checkout = () => {
   };
 
   const handleAddressChange = (address) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      ...address
+      ...address,
     }));
     if (errors.city || errors.district || errors.ward) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         city: null,
         district: null,
-        ward: null
+        ward: null,
       }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.fullName) newErrors.fullName = "Vui lòng nhập họ tên";
+    if (!formData.full_name) newErrors.full_name = "Vui lòng nhập họ tên";
     if (!formData.phone) newErrors.phone = "Vui lòng nhập số điện thoại";
     if (!formData.address) newErrors.address = "Vui lòng nhập địa chỉ";
     if (!formData.city) newErrors.city = "Vui lòng chọn thành phố";
@@ -233,38 +249,39 @@ const Checkout = () => {
 
     setLoading(true);
     try {
-      // Tạo orderNumber giả lập
-      const orderNumber = `ORD${Date.now()}`;
-      
+      // Tạo slug giả lập
+      const slug = `ORD${Date.now()}`;
+
       // Tạo orderDetails để truyền sang OrderSuccess
       const orderDetails = {
-        orderNumber,
-        fullName: formData.fullName,
+        slug,
+        full_name: formData.full_name,
         phone: formData.phone,
         email: formData.email,
         address: formData.address,
         city: formData.city,
         district: formData.district,
         ward: formData.ward,
-        paymentMethod: formData.paymentMethod,
+        payment_method: formData.payment_method,
         note: formData.note,
-        total: calculateTotal,
-        items: cartItems,
-        orderDate: new Date().toISOString()
+        total_price: state
+          ? buyNowItems[0]?.price * buyNowItems[0]?.quantity
+          : calculateTotal,
+        items: state ? buyNowItems : cartItems,
+        order_date: new Date().toISOString(),
       };
 
       // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
       // Clear cart
-      handleClearCart();
-      
+
       // Navigate với state chứa thông tin đơn hàng
       navigate(ROUTES.ORDER_SUCCESS, {
         state: {
-          orderNumber,
-          orderDetails
-        }
+          slug,
+          orderDetails,
+        },
       });
     } catch (error) {
       console.error("Error placing order:", error);
@@ -273,14 +290,9 @@ const Checkout = () => {
     }
   };
 
-  // Memoize calculated values
-  const formattedTotal = useMemo(() => {
-    return calculateTotal.toLocaleString("vi-VN") + "đ";
-  }, [calculateTotal]);
-
   return (
     <div className="min-h-screen bg-gradient-to-tr from-green-50 via-white to-green-50 py-8 px-4 sm:px-6 lg:px-8">
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="initial"
         animate="animate"
@@ -299,12 +311,12 @@ const Checkout = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <InputField
                   label="Họ và tên"
-                  name="fullName"
-                  value={formData.fullName}
+                  name="full_name"
+                  value={formData.full_name}
                   onChange={handleChange}
                   required
                   placeholder="Nhập họ và tên"
-                  error={errors.fullName}
+                  error={errors.full_name}
                 />
 
                 <InputField
@@ -332,7 +344,7 @@ const Checkout = () => {
                 value={{
                   city: formData.city,
                   district: formData.district,
-                  ward: formData.ward
+                  ward: formData.ward,
                 }}
                 onChange={handleAddressChange}
                 error={errors}
@@ -358,6 +370,15 @@ const Checkout = () => {
                 placeholder="Ghi chú về đơn hàng, ví dụ: thời gian hay chỉ dẫn địa điểm giao hàng chi tiết hơn"
                 rows="3"
               />
+              <p className="text-sm text-gray-500">
+                * Chúng tôi sẽ liên hệ lại với bạn để xác nhận đơn hàng
+              </p>
+              <p className="text-sm text-gray-500">
+                * Cập nhật địa chỉ của bạn trong{" "}
+                <Link to={ROUTES.ACCOUNT} className="text-green-600">
+                  trang cá nhân
+                </Link>
+              </p>
             </motion.div>
 
             {/* Phương thức thanh toán */}
@@ -368,10 +389,10 @@ const Checkout = () => {
               </h2>
 
               <div className="space-y-4">
-                {PAYMENT_METHODS.map((method) => (
+                {PAYMENT_METHODS.map((method, i) => (
                   <PaymentMethodCard
                     key={method.method}
-                    selected={formData.paymentMethod === method.method}
+                    selected={formData.payment_method === method.method}
                     method={method.method}
                     icon={method.icon}
                     title={method.title}
@@ -380,11 +401,12 @@ const Checkout = () => {
                     onChange={(e) => {
                       handleChange({
                         target: {
-                          name: "paymentMethod",
-                          value: e.target.value
-                        }
+                          name: "payment_method",
+                          value: e.target.value,
+                        },
                       });
                     }}
+                    disabled={i === 1}
                   />
                 ))}
               </div>
@@ -401,11 +423,25 @@ const Checkout = () => {
 
             <AnimatePresence mode="popLayout">
               <div className="space-y-4 mb-6">
-                {cartItems.map((item) => (
-                  <CartItem key={item.id} item={item} />
-                ))}
+                {state
+                  ? buyNowItems.map((item) => (
+                      <CartItem key={item.id} item={item} />
+                    ))
+                  : cartItems.map((item) => (
+                      <CartItem key={item.id} item={item} />
+                    ))}
               </div>
             </AnimatePresence>
+
+            <h3 className="flex justify-between items-center text-lg font-medium text-green-600">
+              <span>Tổng tiền:</span>
+              {state
+                ? (
+                    buyNowItems[0]?.price * buyNowItems[0]?.quantity
+                  ).toLocaleString("vi-VN")
+                : calculateTotal.toLocaleString("vi-VN")}
+              đ
+            </h3>
 
             <motion.button
               type="submit"
@@ -416,7 +452,7 @@ const Checkout = () => {
               onClick={handleSubmit}
             >
               {loading ? (
-                <motion.span 
+                <motion.span
                   className="flex items-center justify-center"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -438,14 +474,11 @@ const Checkout = () => {
             </motion.button>
 
             {/* Benefits section */}
-            <motion.div 
-              className="mt-6 space-y-3"
-              variants={containerVariants}
-            >
+            <motion.div className="mt-6 space-y-3" variants={containerVariants}>
               {[
                 { icon: Truck, text: "Giao hàng nội thành trong vòng 1-2 giờ" },
                 { icon: Shield, text: "Đảm bảo chất lượng sản phẩm" },
-                { icon: Clock, text: "Hỗ trợ đổi trả trong vòng 24h" }
+                { icon: Clock, text: "Hỗ trợ đổi trả trong vòng 24h" },
               ].map((benefit, index) => (
                 <motion.div
                   key={index}
@@ -462,6 +495,6 @@ const Checkout = () => {
       </motion.div>
     </div>
   );
-};
+});
 
-export default React.memo(Checkout); 
+export default React.memo(Checkout);

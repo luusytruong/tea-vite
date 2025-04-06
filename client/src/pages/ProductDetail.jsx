@@ -1,6 +1,5 @@
 import { memo, useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getProductById, getRelatedProducts } from "~/data/products";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   Star,
   ShoppingCart,
@@ -12,35 +11,52 @@ import {
 import ProductCard from "~/components/common/ProductCard";
 import { ROUTES } from "~/routes";
 import { motion, AnimatePresence } from "framer-motion";
-import { formatDate } from "~/utils/format";
 import { reviews } from "~/data/reviews";
 import ReviewCard from "~/components/common/ReviewCard";
 import ReviewForm from "~/components/common/ReviewForm";
+import { useHome } from "~/context/HomeContext";
+import { useCart } from "~/context/CartContext";
+import useFormData from "~/hooks/useFormData";
+import { useAuth } from "~/context/AuthContext";
+import { IMAGE_URL } from "~/context/AuthContext";
+import Loading from "~/components/common/Loading";
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN").format(price) + "đ";
 };
 
 const ProductDetail = memo(() => {
-  const { slugId } = useParams();
-  const id = slugId.split("-").pop();
-  const product = getProductById(id);
-  const relatedProducts = getRelatedProducts(id);
+  const { slug } = useParams();
+  const { isLoading } = useAuth();
+  const { products } = useHome();
+  const { cartItems, actionCart, setBuyNowItems } = useCart();
+  const product = products.find((p) => p.slug === slug);
+  const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("description");
   const [isBuy, setIsBuy] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const relatedProducts = products.filter(
+    (p) => p.category_id === product.category_id && p.id !== product.id
+  );
 
-  const productReviews = reviews.filter((r) => r.productId === parseInt(id));
-  const averageRating =
-    productReviews.length > 0
-      ? productReviews.reduce((acc, review) => acc + review.rating, 0) /
-        productReviews.length
-      : 0;
+  const [productReviews, setProductReviews] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     document.title = `${product?.name || "Sản phẩm không tồn tại"} - Chè Thái`;
+    if (isLoading) return;
+    const item = cartItems.find((item) => item.product_id === product.id);
+    setQuantity(item ? item.quantity : 1);
+    setProductReviews(reviews.filter((r) => r?.product_id === product.id));
+    setAverageRating(
+      productReviews.length > 0
+        ? productReviews.reduce((acc, review) => acc + review.rating, 0) /
+            productReviews.length
+        : 0
+    );
   }, [product]);
 
   if (!product) {
@@ -68,18 +84,84 @@ const ProductDetail = memo(() => {
     );
   }
 
-  const handleAddToCart = () => {
-    // Xử lý thêm vào giỏ hàng
+  const handleAddToCart = async () => {
+    await actionCart(
+      useFormData({
+        product_id: product.id,
+        quantity: quantity,
+      }),
+      "add"
+    );
   };
 
   const handleBuyNow = () => {
     // Xử lý mua ngay
+    navigate(ROUTES.CHECKOUT, {
+      state: true,
+    });
+    setBuyNowItems([{ ...product, quantity: 1 }]);
   };
 
   const handleAddReview = (reviewData) => {
     // Xử lý thêm đánh giá
     setShowReviewForm(false);
   };
+
+  const genDetails = (origin, weight, text) => {
+    if (!text) return null;
+    const label = ["Thương hiệu", "Xuất xứ", "Trọng lượng", "Bảo quản"];
+
+    const info = (
+      <div>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">
+          Thông tin sản phẩm
+        </h3>
+        <dl className="space-y-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex">
+              <dt className="w-32 text-gray-500">{label[i]}</dt>
+              <dd className="flex-1 text-gray-900">
+                {i === 0
+                  ? "Chè Thái"
+                  : i === 1
+                  ? origin
+                  : i === 2
+                  ? weight
+                  : "Nơi khô ráo, thoáng mát"}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+    const [...blocks] = text.split("---");
+    const arr = [];
+    blocks.map((item, i) => {
+      const lines = item.split("\n").filter((line) => line.trim() !== "");
+      const title = lines[0].replace("*", "");
+      const content = lines.slice(1);
+      arr.push(
+        <div key={title}>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">{title}</h3>
+          <ul className="list-disc list-inside space-y-2 text-gray-600">
+            {content.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    });
+    return [...Array(2)].map((col, i) => (
+      <div key={i} className="space-y-8">
+        {i === 0 ? info : arr[1]}
+        {i === 0 ? arr[0] : arr[2]}
+      </div>
+    ));
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50/30 to-white">
@@ -116,7 +198,7 @@ const ProductDetail = memo(() => {
               <AnimatePresence mode="wait">
                 <motion.img
                   key={selectedImage}
-                  src={product.images[selectedImage]}
+                  src={`${IMAGE_URL}${JSON.parse(product.images)[selectedImage]}`}
                   alt={product.name}
                   className="w-full h-full object-cover"
                   initial={{ opacity: 0 }}
@@ -128,7 +210,7 @@ const ProductDetail = memo(() => {
             </div>
 
             <div className="grid grid-cols-4 gap-4">
-              {product.images.map((image, index) => (
+              {JSON.parse(product.images).map((image, index) => (
                 <motion.button
                   key={index}
                   onClick={() => setSelectedImage(index)}
@@ -141,7 +223,7 @@ const ProductDetail = memo(() => {
                   whileTap={{ scale: 0.95 }}
                 >
                   <img
-                    src={image}
+                    src={`${IMAGE_URL}${image}`}
                     alt={`${product.name} ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
@@ -168,14 +250,14 @@ const ProductDetail = memo(() => {
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < Math.floor(averageRating)
+                        i < Math.floor(averageRating) || 5
                           ? "text-yellow-400 fill-yellow-400"
                           : "text-gray-300"
                       }`}
                     />
                   ))}
                   <span className="ml-2 text-gray-600">
-                    ({productReviews.length} đánh giá)
+                    ({productReviews.length || 0} đánh giá)
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-green-600">
@@ -188,9 +270,9 @@ const ProductDetail = memo(() => {
                 <span className="text-3xl font-medium text-gray-900">
                   {formatPrice(product.price)}
                 </span>
-                {product.originalPrice && (
+                {product.original_price && (
                   <span className="text-lg text-gray-400 line-through">
-                    {formatPrice(product.originalPrice)}
+                    {formatPrice(product.original_price)}
                   </span>
                 )}
                 {product.discount && (
@@ -295,70 +377,11 @@ const ProductDetail = memo(() => {
                   transition={{ duration: 0.3 }}
                   className="grid grid-cols-1 md:grid-cols-2 gap-12"
                 >
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        Thông tin sản phẩm
-                      </h3>
-                      <dl className="space-y-3">
-                        <div className="flex">
-                          <dt className="w-32 text-gray-500">Thương hiệu</dt>
-                          <dd className="flex-1 text-gray-900">
-                            Trà Thái Nguyên
-                          </dd>
-                        </div>
-                        <div className="flex">
-                          <dt className="w-32 text-gray-500">Xuất xứ</dt>
-                          <dd className="flex-1 text-gray-900">
-                            {product?.origin}
-                          </dd>
-                        </div>
-                        <div className="flex">
-                          <dt className="w-32 text-gray-500">Trọng lượng</dt>
-                          <dd className="flex-1 text-gray-900">
-                            {product?.weight}
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        Thành phần
-                      </h3>
-                      <ul className="list-disc list-inside space-y-2 text-gray-600">
-                        {product?.ingredients
-                          .split("\n")
-                          .map((ingredient, index) => (
-                            <li key={index}>{ingredient}</li>
-                          ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        Công dụng
-                      </h3>
-                      <ul className="list-disc list-inside space-y-2 text-gray-600">
-                        {product?.benefits.split("\n").map((benefit, index) => (
-                          <li key={index}>{benefit}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-4">
-                        Cách sử dụng
-                      </h3>
-                      <ul className="list-disc list-inside space-y-2 text-gray-600">
-                        {product?.usage.split("\n").map((step, index) => (
-                          <li key={index}>{step}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  {genDetails(
+                    product?.origin,
+                    product?.weight,
+                    product?.details
+                  )}
                 </motion.div>
               ) : (
                 <motion.div
@@ -403,7 +426,7 @@ const ProductDetail = memo(() => {
                               ))}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {productReviews.length} đánh giá
+                              {productReviews.length || 0} đánh giá
                             </div>
                           </div>
 

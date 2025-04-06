@@ -6,6 +6,7 @@ class Db
     private function __construct()
     {
         $this->connect();
+        // $this->createTables();
     }
     private function connect()
     {
@@ -41,7 +42,9 @@ class Db
                     id INT PRIMARY KEY AUTO_INCREMENT,
                     name VARCHAR(255) NOT NULL,
                     description TEXT,
-                    slug VARCHAR(255) NOT NULL UNIQUE
+                    slug VARCHAR(255) NOT NULL UNIQUE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 );
 
             CREATE TABLE
@@ -56,17 +59,12 @@ class Db
                     image VARCHAR(255) NOT NULL,
                     images JSON,
                     discount INT,
-                    rating DECIMAL(2, 1) DEFAULT 0 CHECK (rating BETWEEN 0 AND 5),
-                    review_count INT DEFAULT 0,
                     category_id INT,
                     stock INT NOT NULL DEFAULT 0,
                     weight VARCHAR(20),
                     origin VARCHAR(255),
                     processing_method VARCHAR(255),
-                    storage TEXT,
-                    ingredients TEXT,
-                    benefits TEXT,
-                    usage_info TEXT,
+                    details TEXT,
                     is_featured BOOLEAN DEFAULT FALSE,
                     is_new BOOLEAN DEFAULT FALSE,
                     meta_keywords TEXT,
@@ -101,6 +99,7 @@ class Db
                     comment TEXT,
                     images JSON,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
                     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
                 );
@@ -135,6 +134,7 @@ class Db
                     instagram VARCHAR(255),
                     tiktok VARCHAR(255),
                     youtube VARCHAR(255),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 );
 
@@ -145,6 +145,7 @@ class Db
                     product_id INT NOT NULL,
                     quantity INT NOT NULL DEFAULT 1,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
                     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE,
                     UNIQUE (user_id, product_id)
@@ -153,8 +154,10 @@ class Db
             CREATE TABLE
                 IF NOT EXISTS orders (
                     id INT PRIMARY KEY AUTO_INCREMENT,
+                    slug VARCHAR(255) NOT NULL UNIQUE,
                     user_id INT NOT NULL,
                     total_price DECIMAL(10, 2) NOT NULL,
+                    payment_method VARCHAR(255),
                     status ENUM (
                         'pending',
                         'processing',
@@ -162,6 +165,8 @@ class Db
                         'delivered',
                         'cancelled'
                     ) DEFAULT 'pending',
+                    address TEXT,
+                    note TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
@@ -174,8 +179,19 @@ class Db
                     product_id INT NOT NULL,
                     quantity INT NOT NULL,
                     price DECIMAL(10, 2) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                     FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,
                     FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
+                );
+
+            CREATE TABLE
+                IF NOT EXISTS order_timelines (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    order_id INT NOT NULL,
+                    status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') NOT NULL,
+                    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
                 );
 
             -- View tính trung bình rating và số lượng đánh giá
@@ -190,89 +206,16 @@ class Db
             GROUP BY
                 product_id;
 
-            -- Trigger cập nhật rating và review_count khi có review mới
-            CREATE TRIGGER update_product_rating AFTER INSERT ON reviews FOR EACH ROW BEGIN
-            UPDATE products
-            SET
-                rating = COALESCE(
-                    (
-                        SELECT
-                            ROUND(AVG(rating), 1)
-                        FROM
-                            reviews
-                        WHERE
-                            product_id = NEW.product_id
-                    ),
-                    0
-                ),
-                review_count = (
-                    SELECT
-                        COUNT(*)
-                    FROM
-                        reviews
-                    WHERE
-                        product_id = NEW.product_id
-                )
-            WHERE
-                id = NEW.product_id;
-
-            END;
-
-            -- Trigger cập nhật rating và review_count khi review bị chỉnh sửa
-            CREATE TRIGGER update_product_rating_after_update AFTER
-            UPDATE ON reviews FOR EACH ROW BEGIN
-            UPDATE products
-            SET
-                rating = COALESCE(
-                    (
-                        SELECT
-                            ROUND(AVG(rating), 1)
-                        FROM
-                            reviews
-                        WHERE
-                            product_id = NEW.product_id
-                    ),
-                    0
-                ),
-                review_count = (
-                    SELECT
-                        COUNT(*)
-                    FROM
-                        reviews
-                    WHERE
-                        product_id = NEW.product_id
-                )
-            WHERE
-                id = NEW.product_id;
-
-            END;
-
-            -- Trigger cập nhật rating và review_count khi review bị xóa
-            CREATE TRIGGER update_product_rating_after_delete AFTER DELETE ON reviews FOR EACH ROW BEGIN
-            UPDATE products
-            SET
-                rating = COALESCE(
-                    (
-                        SELECT
-                            ROUND(AVG(rating), 1)
-                        FROM
-                            reviews
-                        WHERE
-                            product_id = OLD.product_id
-                    ),
-                    0
-                ),
-                review_count = (
-                    SELECT
-                        COUNT(*)
-                    FROM
-                        reviews
-                    WHERE
-                        product_id = OLD.product_id
-                )
-            WHERE
-                id = OLD.product_id;
-
+            -- Nếu trạng thái thay đổi thì ghi vào order_timelines
+            DROP TRIGGER IF EXISTS before_order_status_update;
+            CREATE TRIGGER before_order_status_update
+            BEFORE UPDATE ON orders
+            FOR EACH ROW
+            BEGIN
+                IF OLD.status <> NEW.status THEN
+                    INSERT INTO order_timelines (order_id, status, changed_at)
+                    VALUES (OLD.id, NEW.status, NOW());
+                END IF;
             END;
 
             -- Insert default company info
@@ -313,6 +256,8 @@ class Db
                 );
 
             CREATE INDEX idx_products_slug ON products (slug);
+
+            CREATE INDEX idx_orders_slug ON orders (slug);
 
             CREATE INDEX idx_users_email ON users (email);
 

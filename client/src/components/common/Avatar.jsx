@@ -1,5 +1,5 @@
 import React from "react";
-import { API_URL } from "~/context/AuthContext";
+import { IMAGE_URL } from "~/context/AuthContext";
 
 const Avatar = ({ src, alt, name = "T", size = 32, className = "" }) => {
   const getInitials = (name) => {
@@ -53,7 +53,7 @@ const Avatar = ({ src, alt, name = "T", size = 32, className = "" }) => {
   if (src) {
     return (
       <img
-        src={`${API_URL}public/uploads/${src}`}
+        src={`${IMAGE_URL}${src}`}
         alt={alt}
         className={`rounded-full object-cover ${getBorderWidth(
           size

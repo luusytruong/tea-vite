@@ -6,9 +6,11 @@ import { useAuth } from "~/context/AuthContext";
 import InputField from "~/components/common/InputField";
 import { ROUTES } from "~/routes";
 import useFormData from "~/hooks/useFormData";
+import { useHome } from "~/context/HomeContext";
 
 const Login = () => {
   const { login, user } = useAuth();
+  const { lastPath } = useHome();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     phone: "",

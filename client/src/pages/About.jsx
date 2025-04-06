@@ -16,11 +16,11 @@ import {
 } from "lucide-react";
 import InputField from "~/components/common/InputField";
 import { company } from "~/data/company";
-import backgroundImage from "~/assets/images/bg-1.jpg";
-import st1 from "~/assets/images/story/st-1.png";
-import st2 from "~/assets/images/story/st-2.png";
-import st3 from "~/assets/images/story/st-3.png";
-import st4 from "~/assets/images/story/st-4.png";
+import backgroundImage from "~/assets/images/bg-1.webp";
+import st1 from "~/assets/images/story/st-1.webp";
+import st2 from "~/assets/images/story/st-2.webp";
+import st3 from "~/assets/images/story/st-3.webp";
+import st4 from "~/assets/images/story/st-4.webp";
 
 const About = () => {
   const [formData, setFormData] = useState({

@@ -3,7 +3,7 @@ import { blogs } from "~/data/blog";
 import BlogCard from "~/components/common/BlogCard";
 import { Search } from "lucide-react";
 import { useState } from "react";
-import teaPattern from "~/assets/images/bg-3.jpg";
+import teaPattern from "~/assets/images/bg-3.webp";
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");

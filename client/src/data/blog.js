@@ -1,6 +1,6 @@
-import bg1 from "~/assets/images/bg-1.jpg";
-import bg2 from "~/assets/images/bg-2.jpg";
-import bg3 from "~/assets/images/bg-3.jpg";
+import bg1 from "~/assets/images/bg-1.webp";
+import bg2 from "~/assets/images/bg-2.webp";
+import bg3 from "~/assets/images/bg-3.webp";
 
 export const blogs = [
   {

@@ -12,6 +12,14 @@ function validMethodGET()
         handleError('Phương thức không hợp lệ');
     }
 }
+//user_id in session
+function validUserId()
+{
+    if (empty($_SESSION['user_id']) || empty($_SESSION['phone'])) {
+        echo json_encode([]);
+    }
+}
+
 //image
 function validType($type)
 {
